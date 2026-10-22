@@ -11,7 +11,10 @@ from fastapi.responses import JSONResponse
 
 app = FastAPI(title="A2A Invoice Agent", version="1.0.0")
 
-BASE_URL = os.getenv("A2A_BASE_URL", "https://YOUR-SERVICE.onrender.com/a2a/")
+BASE_URL = os.getenv(
+    "A2A_BASE_URL",
+    "https://a2a-invoice-agent-g593.onrender.com/a2a/"
+)
 API_TOKEN = os.getenv("A2A_API_TOKEN", "local-dev-token")
 DB_PATH = os.getenv("TASK_DB", "tasks.db")
 
@@ -61,12 +64,20 @@ def error(status, code):
     )
 
 
+
 def get_principal(request):
     auth = request.headers.get("Authorization", "")
-    expected = f"Bearer {API_TOKEN}"
-    if not API_TOKEN or auth != expected:
+
+    if not auth.startswith("Bearer "):
         return None
-    return auth[len("Bearer "):]
+
+    token = auth[len("Bearer "):].strip()
+
+    if not token:
+        return None
+
+    return token
+
 
 
 def save_task(task):
